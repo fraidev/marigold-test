@@ -1,9 +1,11 @@
 # Marigold Test
 
 ## Demonstration
-![Image of Application](https://i.imgur.com/zTupIpJ.png)
+<p align="center" width="100%">
+    <img alt="Image of Application" src="https://i.imgur.com/qU2sObv.png">
+</p>
 
-## Challange
+## Challenge
 We would like you develop a small dApp in TS. 
 This dApps should be a simple frontend application that give access to an address balance from a Tezos node.
 Form's inputs
@@ -35,4 +37,4 @@ Start development server:
 yarn start
 ```
 
-And open http://localhost:3000 in your browser to see a this application.
+And open http://localhost:3000 in your browser to see this application.
