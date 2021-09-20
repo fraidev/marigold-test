@@ -11,26 +11,33 @@ function TezosBalance() {
     let [rpc, setRPC] = useState("https://mainnet.api.tez.ie")
     let [address, setAddress] = useState("tz1h3rQ8wBxFd8L9B3d7Jhaawu6Z568XU3xY")
     let [isValid, setIsValid] = useState(false)
+    let [hasError, setHasError] = useState(false)
 
-    const fetchBalance = async (tezos: TezosToolkit, address: string) => {
+    const fetchBalance = (tezos: TezosToolkit, address: string) => {
         setIsLoading(true)
-        const balance = await tezos.tz.getBalance(address)
-        setIsLoading(false)
-        return `${balance.toNumber() / 1000000} ꜩ`
+        tezos.tz.getBalance(address)
+            .then((balance) => {
+                setIsValid(true)
+                setHasError(false)
+                setBalance(`${balance.toNumber() / 1000000} ꜩ`)
+            })
+            .catch((error) => {
+                setIsValid(false)
+                setHasError(true)
+                setBalance("0 ꜩ")
+            }).finally(() => {
+                setIsLoading(false)
+            });
     }
 
     const fetchBalanceHandler = () => {
         const tezos = new TezosToolkit(rpc);
-        fetchBalance(tezos, address).then((newBalance) => {
-            setBalance(newBalance)
-            setIsValid(true)
-        })
+        fetchBalance(tezos, address)
     }
 
     useInterval(async () => {
-        if (isValid) {
-            const tezos = new TezosToolkit(rpc);
-            setBalance(await fetchBalance(tezos, address))
+        if (isValid && !hasError) {
+            fetchBalanceHandler()
         }
     }, refreshRate);
 
@@ -41,7 +48,10 @@ function TezosBalance() {
             </Typography>
         </Box>
 
-        <CardContent>
+        <CardContent sx={{ padding: '0px 10px' }}>
+            <Typography sx={{ fontSize: '1rem', color: '#E34035', visibility: hasError ? "visible" : "hidden" }}>
+                Invalid rpc or tezos address
+            </Typography>
             <Grid container spacing={2} >
                 <Grid item xs={9}>
                     <Grid item xs={12} sx={{ paddingBottom: '10px' }}>
@@ -65,16 +75,9 @@ function TezosBalance() {
                     </Grid>
                 </Grid>
             </Grid>
-            <Typography sx={{ fontSize: '1.8rem', paddingTop: '20px' }}>
-                {balance}
-            </Typography>
+            <Typography sx={{ fontSize: '1.8rem' }}>{balance}</Typography>
         </CardContent>
-
-        <Box sx={{ width: '100%' }}>
-            {isLoading && (
-                <LinearProgress />
-            )}
-        </Box>
+        <LinearProgress sx={{ visibility: isLoading ? "visible" : "hidden" }} />
     </Card>)
 }
 
